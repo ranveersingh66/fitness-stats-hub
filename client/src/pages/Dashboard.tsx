@@ -76,67 +76,34 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle className="font-display text-xl">Recent Workouts</CardTitle>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="glass-card hover-elevate border-primary/20">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Bench Press PR</CardTitle>
           </CardHeader>
           <CardContent>
-            {stats?.recentWorkouts.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">No workouts logged yet.</div>
-            ) : (
-              <div className="space-y-4">
-                {stats?.recentWorkouts.map((workout) => (
-                  <div key={workout.id} className="flex items-center justify-between p-4 rounded-xl bg-muted/30 border border-border/50">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
-                        <Dumbbell className="w-5 h-5 text-secondary" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-foreground">{workout.exerciseName}</p>
-                        <p className="text-sm text-muted-foreground">{format(new Date(workout.date), 'MMM d, yyyy')}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold">{workout.sets} <span className="text-muted-foreground font-normal">sets</span> x {workout.reps} <span className="text-muted-foreground font-normal">reps</span></p>
-                      <p className="text-sm font-medium text-primary">{workout.weight} kg</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            <div className="text-4xl font-display font-bold text-primary">{stats?.prs?.benchPress || 0} <span className="text-lg font-sans text-muted-foreground">kg</span></div>
+            <p className="text-xs text-muted-foreground mt-1">All-time best</p>
           </CardContent>
         </Card>
 
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle className="font-display text-xl">Recent Weight Logs</CardTitle>
+        <Card className="glass-card hover-elevate border-secondary/20">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Squat PR</CardTitle>
           </CardHeader>
           <CardContent>
-            {stats?.recentWeightEntries.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">No weight entries yet.</div>
-            ) : (
-              <div className="space-y-4">
-                {stats?.recentWeightEntries.map((entry) => (
-                  <div key={entry.id} className="flex items-center justify-between p-4 rounded-xl bg-muted/30 border border-border/50">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Scale className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-foreground">{entry.weight} kg</p>
-                        <p className="text-sm text-muted-foreground">{format(new Date(entry.date), 'MMM d, yyyy')}</p>
-                      </div>
-                    </div>
-                    {entry.notes && (
-                      <div className="text-sm text-muted-foreground italic max-w-[150px] truncate">
-                        "{entry.notes}"
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+            <div className="text-4xl font-display font-bold text-secondary">{stats?.prs?.squat || 0} <span className="text-lg font-sans text-muted-foreground">kg</span></div>
+            <p className="text-xs text-muted-foreground mt-1">All-time best</p>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-card hover-elevate border-accent/20">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Deadlift PR</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl font-display font-bold text-accent">{stats?.prs?.deadlift || 0} <span className="text-lg font-sans text-muted-foreground">kg</span></div>
+            <p className="text-xs text-muted-foreground mt-1">All-time best</p>
           </CardContent>
         </Card>
       </div>

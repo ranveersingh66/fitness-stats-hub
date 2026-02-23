@@ -77,6 +77,12 @@ export interface WorkoutEntriesQueryParams {
   exerciseId?: number;
 }
 
+export interface PRResponse {
+  benchPress?: number;
+  deadlift?: number;
+  squat?: number;
+}
+
 // === STATS RESPONSE ===
 export interface StatsResponse {
   totalWeightEntries: number;
@@ -85,4 +91,5 @@ export interface StatsResponse {
   weightChange?: number; // change from first to latest
   recentWorkouts: WorkoutEntryResponse[];
   recentWeightEntries: WeightEntryResponse[];
+  prs: PRResponse;
 }

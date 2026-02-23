@@ -221,6 +221,24 @@ export class DatabaseStorage implements IStorage {
       weightChange = currentWeight - firstWeightValue;
     }
 
+    // Get PRs for Bench Press, Deadlift, Squat
+    const prs: PRResponse = {};
+    const liftNames = ["Bench Press", "Deadlift", "Squat"];
+    
+    for (const name of liftNames) {
+      const [exercise] = await db.select().from(exercises).where(eq(exercises.name, name));
+      if (exercise) {
+        const [maxWeight] = await db
+          .select({ max: sql<number>`max(weight)::float` })
+          .from(workoutEntries)
+          .where(eq(workoutEntries.exerciseId, exercise.id));
+        
+        if (name === "Bench Press") prs.benchPress = maxWeight?.max || 0;
+        if (name === "Deadlift") prs.deadlift = maxWeight?.max || 0;
+        if (name === "Squat") prs.squat = maxWeight?.max || 0;
+      }
+    }
+
     return {
       totalWeightEntries: weightCount.count,
       totalWorkouts: workoutCount.count,
@@ -228,6 +246,7 @@ export class DatabaseStorage implements IStorage {
       weightChange,
       recentWorkouts: recentWorkouts.slice(0, 5),
       recentWeightEntries: recentWeightEntries.slice(0, 5),
+      prs,
     };
   }
 }
