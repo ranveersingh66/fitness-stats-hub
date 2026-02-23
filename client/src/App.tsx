@@ -5,14 +5,26 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 
+// Components
+import { AppLayout } from "@/components/layout/AppLayout";
+
+// Pages
+import Dashboard from "@/pages/Dashboard";
+import WeightTracker from "@/pages/WeightTracker";
+import WorkoutLog from "@/pages/WorkoutLog";
+import Exercises from "@/pages/Exercises";
+
 function Router() {
   return (
-    <Switch>
-      {/* Add pages below */}
-      {/* <Route path="/" component={Home}/> */}
-      {/* Fallback to 404 */}
-      <Route component={NotFound} />
-    </Switch>
+    <AppLayout>
+      <Switch>
+        <Route path="/" component={Dashboard} />
+        <Route path="/weight" component={WeightTracker} />
+        <Route path="/workouts" component={WorkoutLog} />
+        <Route path="/exercises" component={Exercises} />
+        <Route component={NotFound} />
+      </Switch>
+    </AppLayout>
   );
 }
 
