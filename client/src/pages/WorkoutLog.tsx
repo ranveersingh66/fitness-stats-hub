@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/use-auth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -28,6 +29,7 @@ export default function WorkoutLog() {
   const { data: exercises, isLoading: isLoadingExercises } = useExercises();
   const createMutation = useCreateWorkoutEntry();
   const deleteMutation = useDeleteWorkoutEntry();
+  const { isAdmin } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -72,8 +74,8 @@ export default function WorkoutLog() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <Card className="glass-card lg:col-span-4 h-fit sticky top-24">
+      <div className={`grid grid-cols-1 gap-8 ${isAdmin ? "lg:grid-cols-12" : ""}`}>
+        <Card className={`glass-card h-fit sticky top-24 ${isAdmin ? "lg:col-span-4" : "hidden"}`}>
           <CardHeader>
             <CardTitle className="font-display flex items-center gap-2">
               <Dumbbell className="w-5 h-5 text-secondary" /> Log Set
@@ -187,7 +189,7 @@ export default function WorkoutLog() {
           </CardContent>
         </Card>
 
-        <div className="lg:col-span-8 space-y-6">
+        <div className={isAdmin ? "lg:col-span-8 space-y-6" : "space-y-6"}>
           {isLoadingWorkouts ? (
              <div className="space-y-4 animate-pulse">
                {[1,2].map(i => <div key={i} className="h-48 bg-muted rounded-2xl"></div>)}
@@ -240,6 +242,7 @@ export default function WorkoutLog() {
                             </div>
                           </div>
                           
+                          {isAdmin && (
                           <Button 
                             variant="ghost" 
                             size="icon" 
@@ -251,6 +254,7 @@ export default function WorkoutLog() {
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
+                          )}
                         </div>
                       </div>
                     ))}

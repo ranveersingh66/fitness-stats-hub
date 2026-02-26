@@ -3,10 +3,12 @@ import {
   insertWeightEntrySchema, 
   insertExerciseSchema, 
   insertWorkoutEntrySchema,
+  insertRunningEntrySchema,
   type WeightEntry,
   type Exercise,
   type WorkoutEntry,
   type WorkoutEntryResponse,
+  type RunningEntry,
   type StatsResponse,
 } from './schema';
 
@@ -154,6 +156,42 @@ export const api = {
       },
     },
   },
+  runningEntries: {
+    list: {
+      method: 'GET' as const,
+      path: '/api/running-entries' as const,
+      responses: {
+        200: z.array(z.custom<RunningEntry>()),
+      },
+    },
+    create: {
+      method: 'POST' as const,
+      path: '/api/running-entries' as const,
+      input: insertRunningEntrySchema,
+      responses: {
+        201: z.custom<RunningEntry>(),
+        400: errorSchemas.validation,
+      },
+    },
+    update: {
+      method: 'PUT' as const,
+      path: '/api/running-entries/:id' as const,
+      input: insertRunningEntrySchema.partial(),
+      responses: {
+        200: z.custom<RunningEntry>(),
+        400: errorSchemas.validation,
+        404: errorSchemas.notFound,
+      },
+    },
+    delete: {
+      method: 'DELETE' as const,
+      path: '/api/running-entries/:id' as const,
+      responses: {
+        204: z.void(),
+        404: errorSchemas.notFound,
+      },
+    },
+  },
 };
 
 // ============================================
@@ -179,5 +217,7 @@ export type WeightEntryUpdateInput = z.infer<typeof api.weightEntries.update.inp
 export type ExerciseInput = z.infer<typeof api.exercises.create.input>;
 export type WorkoutEntryInput = z.infer<typeof api.workoutEntries.create.input>;
 export type WorkoutEntryUpdateInput = z.infer<typeof api.workoutEntries.update.input>;
+export type RunningEntryInput = z.infer<typeof api.runningEntries.create.input>;
+export type RunningEntryUpdateInput = z.infer<typeof api.runningEntries.update.input>;
 export type ValidationError = z.infer<typeof errorSchemas.validation>;
 export type NotFoundError = z.infer<typeof errorSchemas.notFound>;

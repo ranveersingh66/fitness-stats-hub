@@ -1,10 +1,24 @@
 import { useStats } from "@/hooks/use-stats";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, Dumbbell, Scale, TrendingDown, TrendingUp } from "lucide-react";
-import { format } from "date-fns";
+import { Dumbbell, Scale, TrendingDown, TrendingUp, Footprints } from "lucide-react";
 
 export default function Dashboard() {
   const { data: stats, isLoading } = useStats();
+
+  const { data: runningEntries = [] } = useQuery({
+    queryKey: ["running-entries"],
+    queryFn: async () => {
+      const res = await fetch("/api/running-entries");
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    },
+  });
+
+  const totalDistance = runningEntries.reduce(
+    (sum: number, e: { distance: string }) => sum + parseFloat(e.distance),
+    0
+  );
 
   if (isLoading) {
     return (
@@ -22,7 +36,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
-        <h1 className="text-3xl sm:text-4xl font-display font-bold text-foreground">Overview</h1>
+        <h1 className="text-3xl sm:text-4xl font-display font-bold text-foreground">Hellooo Ranveer!</h1>
         <p className="text-muted-foreground mt-1 text-lg">Your fitness journey at a glance.</p>
       </div>
 
@@ -62,16 +76,17 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
+
         <Card className="glass-card hover-elevate">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Weight Entries</CardTitle>
-            <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
-              <Activity className="w-5 h-5 text-accent" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Distance Ran</CardTitle>
+            <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
+              <Footprints className="w-5 h-5 text-emerald-500" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-display font-bold">{stats?.totalWeightEntries || 0}</div>
-            <p className="text-sm text-muted-foreground mt-2 font-medium">Logs recorded</p>
+            <div className="text-3xl font-display font-bold">{totalDistance.toFixed(1)} <span className="text-lg text-muted-foreground font-sans">km</span></div>
+            <p className="text-sm text-muted-foreground mt-2 font-medium">Lifetime total</p>
           </CardContent>
         </Card>
       </div>

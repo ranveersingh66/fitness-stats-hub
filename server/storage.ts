@@ -3,18 +3,23 @@ import {
   weightEntries,
   exercises,
   workoutEntries,
+  runningEntries,
   type WeightEntry,
   type Exercise,
   type WorkoutEntry,
   type WorkoutEntryResponse,
+  type RunningEntry,
   type CreateWeightEntryRequest,
   type UpdateWeightEntryRequest,
   type CreateExerciseRequest,
   type CreateWorkoutEntryRequest,
   type UpdateWorkoutEntryRequest,
+  type CreateRunningEntryRequest,
+  type UpdateRunningEntryRequest,
   type WeightEntriesQueryParams,
   type WorkoutEntriesQueryParams,
   type StatsResponse,
+  type PRResponse,
 } from "@shared/schema";
 import { eq, desc, asc, and, gte, lte, sql } from "drizzle-orm";
 
@@ -37,6 +42,12 @@ export interface IStorage {
   createWorkoutEntry(entry: CreateWorkoutEntryRequest): Promise<WorkoutEntryResponse>;
   updateWorkoutEntry(id: number, updates: UpdateWorkoutEntryRequest): Promise<WorkoutEntryResponse>;
   deleteWorkoutEntry(id: number): Promise<void>;
+
+  // Running Entries
+  getRunningEntries(): Promise<RunningEntry[]>;
+  createRunningEntry(entry: CreateRunningEntryRequest): Promise<RunningEntry>;
+  updateRunningEntry(id: number, updates: UpdateRunningEntryRequest): Promise<RunningEntry>;
+  deleteRunningEntry(id: number): Promise<void>;
 
   // Stats
   getStats(): Promise<StatsResponse>;
@@ -159,13 +170,11 @@ export class DatabaseStorage implements IStorage {
 
   async createWorkoutEntry(entry: CreateWorkoutEntryRequest): Promise<WorkoutEntryResponse> {
     const [created] = await db.insert(workoutEntries).values(entry).returning();
-    
     const exercise = await this.getExercise(created.exerciseId);
-    
     return {
       ...created,
-      exerciseName: exercise?.name,
-      exerciseCategory: exercise?.category,
+      exerciseName: exercise?.name ?? undefined,
+      exerciseCategory: exercise?.category ?? undefined,
     };
   }
 
@@ -174,18 +183,38 @@ export class DatabaseStorage implements IStorage {
       .set(updates)
       .where(eq(workoutEntries.id, id))
       .returning();
-    
     const exercise = await this.getExercise(updated.exerciseId);
-    
     return {
       ...updated,
-      exerciseName: exercise?.name,
-      exerciseCategory: exercise?.category,
+      exerciseName: exercise?.name ?? undefined,
+      exerciseCategory: exercise?.category ?? undefined,
     };
   }
 
   async deleteWorkoutEntry(id: number): Promise<void> {
     await db.delete(workoutEntries).where(eq(workoutEntries.id, id));
+  }
+
+  // Running Entries
+  async getRunningEntries(): Promise<RunningEntry[]> {
+    return await db.select().from(runningEntries).orderBy(desc(runningEntries.date));
+  }
+
+  async createRunningEntry(entry: CreateRunningEntryRequest): Promise<RunningEntry> {
+    const [created] = await db.insert(runningEntries).values(entry).returning();
+    return created;
+  }
+
+  async updateRunningEntry(id: number, updates: UpdateRunningEntryRequest): Promise<RunningEntry> {
+    const [updated] = await db.update(runningEntries)
+      .set(updates)
+      .where(eq(runningEntries.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteRunningEntry(id: number): Promise<void> {
+    await db.delete(runningEntries).where(eq(runningEntries.id, id));
   }
 
   // Stats
@@ -221,7 +250,6 @@ export class DatabaseStorage implements IStorage {
       weightChange = currentWeight - firstWeightValue;
     }
 
-    // Get PRs for Bench Press, Deadlift, Squat
     const prs: PRResponse = {};
     const liftNames = ["Bench Press", "Deadlift", "Squat"];
     
