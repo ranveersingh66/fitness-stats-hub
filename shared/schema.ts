@@ -1,4 +1,4 @@
-import { pgTable, serial, text, decimal, date, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, decimal, date, integer, timestamp, bigint } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -31,10 +31,21 @@ export const workoutEntries = pgTable("workout_entries", {
 export const runningEntries = pgTable("running_entries", {
   id: serial("id").primaryKey(),
   date: date("date").notNull(),
-  distance: decimal("distance", { precision: 6, scale: 2 }).notNull(),
-  duration: integer("duration"),
+  distance: decimal("distance", { precision: 6, scale: 2 }).notNull(), // in km
+  duration: integer("duration"), // in seconds
   notes: text("notes"),
+  stravaId: bigint("strava_id", { mode: "bigint" }), // null for manual entries
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Stores Strava OAuth tokens (single-user app — only one row ever)
+export const stravaTokens = pgTable("strava_tokens", {
+  id: serial("id").primaryKey(),
+  accessToken: text("access_token").notNull(),
+  refreshToken: text("refresh_token").notNull(),
+  expiresAt: integer("expires_at").notNull(), // unix timestamp
+  athleteId: bigint("athlete_id", { mode: "bigint" }).notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // === BASE SCHEMAS ===
@@ -62,6 +73,7 @@ export type WeightEntry = typeof weightEntries.$inferSelect;
 export type Exercise = typeof exercises.$inferSelect;
 export type WorkoutEntry = typeof workoutEntries.$inferSelect;
 export type RunningEntry = typeof runningEntries.$inferSelect;
+export type StravaToken = typeof stravaTokens.$inferSelect;
 
 // === REQUEST TYPES ===
 export type CreateWeightEntryRequest = z.infer<typeof insertWeightEntrySchema>;

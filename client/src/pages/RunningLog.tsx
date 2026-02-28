@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { StravaSyncButton } from "@/components/StravaSyncButton";
 
 interface RunningEntry {
   id: number;
@@ -98,35 +99,38 @@ export default function RunningLog() {
           <h1 className="text-3xl font-bold">Running Log</h1>
           <p className="text-muted-foreground">Track your weekly mileage</p>
         </div>
-        {isAdmin && <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2"><Plus className="w-4 h-4" /> Log Run</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>Log a Run</DialogTitle></DialogHeader>
-            <div className="space-y-4 pt-2">
-              <div className="space-y-1">
-                <Label>Date</Label>
-                <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
+        <div className="flex items-center gap-2">
+          <StravaSyncButton />
+          {isAdmin && <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2"><Plus className="w-4 h-4" /> Log Run</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Log a Run</DialogTitle></DialogHeader>
+              <div className="space-y-4 pt-2">
+                <div className="space-y-1">
+                  <Label>Date</Label>
+                  <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
+                </div>
+                <div className="space-y-1">
+                  <Label>Distance (km)</Label>
+                  <Input type="number" step="0.01" placeholder="e.g. 5.5" value={form.distance} onChange={(e) => setForm({ ...form, distance: e.target.value })} />
+                </div>
+                <div className="space-y-1">
+                  <Label>Duration (minutes, optional)</Label>
+                  <Input type="number" placeholder="e.g. 30" value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} />
+                </div>
+                <div className="space-y-1">
+                  <Label>Notes (optional)</Label>
+                  <Input placeholder="How did it go?" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+                </div>
+                <Button className="w-full" onClick={() => createMutation.mutate(form)} disabled={!form.date || !form.distance}>
+                  Save Run
+                </Button>
               </div>
-              <div className="space-y-1">
-                <Label>Distance (km)</Label>
-                <Input type="number" step="0.01" placeholder="e.g. 5.5" value={form.distance} onChange={(e) => setForm({ ...form, distance: e.target.value })} />
-              </div>
-              <div className="space-y-1">
-                <Label>Duration (minutes, optional)</Label>
-                <Input type="number" placeholder="e.g. 30" value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} />
-              </div>
-              <div className="space-y-1">
-                <Label>Notes (optional)</Label>
-                <Input placeholder="How did it go?" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
-              </div>
-              <Button className="w-full" onClick={() => createMutation.mutate(form)} disabled={!form.date || !form.distance}>
-                Save Run
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>}
+            </DialogContent>
+          </Dialog>}
+        </div>
       </div>
 
       {/* Stats cards */}
