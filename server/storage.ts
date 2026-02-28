@@ -53,6 +53,14 @@ export interface IStorage {
   getStats(): Promise<StatsResponse>;
 }
 
+// Helper to safely serialize a RunningEntry (converts BigInt stravaId to string)
+function serializeRunningEntry(entry: any): RunningEntry {
+  return {
+    ...entry,
+    stravaId: entry.stravaId != null ? entry.stravaId.toString() : null,
+  };
+}
+
 export class DatabaseStorage implements IStorage {
   // Weight Entries
   async getWeightEntries(params?: WeightEntriesQueryParams): Promise<WeightEntry[]> {
@@ -195,14 +203,15 @@ export class DatabaseStorage implements IStorage {
     await db.delete(workoutEntries).where(eq(workoutEntries.id, id));
   }
 
-  // Running Entries
+  // Running Entries — serialize BigInt stravaId to string for JSON safety
   async getRunningEntries(): Promise<RunningEntry[]> {
-    return await db.select().from(runningEntries).orderBy(desc(runningEntries.date));
+    const rows = await db.select().from(runningEntries).orderBy(desc(runningEntries.date));
+    return rows.map(serializeRunningEntry);
   }
 
   async createRunningEntry(entry: CreateRunningEntryRequest): Promise<RunningEntry> {
     const [created] = await db.insert(runningEntries).values(entry).returning();
-    return created;
+    return serializeRunningEntry(created);
   }
 
   async updateRunningEntry(id: number, updates: UpdateRunningEntryRequest): Promise<RunningEntry> {
@@ -210,7 +219,7 @@ export class DatabaseStorage implements IStorage {
       .set(updates)
       .where(eq(runningEntries.id, id))
       .returning();
-    return updated;
+    return serializeRunningEntry(updated);
   }
 
   async deleteRunningEntry(id: number): Promise<void> {
